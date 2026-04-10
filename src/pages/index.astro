@@ -1,17 +1,391 @@
 ---
-
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+			rel="stylesheet"
+		/>
 		<title>Mona Mayhem</title>
 	</head>
 	<body>
-		<h1>Mona Mayhem</h1>
-		<p>Welcome to Mona Mayhem! Time to build a GitHub Contribution Battle Arena.</p>
+		<header>
+			<h1>Mona Mayhem</h1>
+			<h2>GitHub Contribution Battle Arena</h2>
+		</header>
+
+		<main>
+			<section class="battle-setup">
+				<div class="input-group">
+					<input
+						type="text"
+						id="player1"
+						placeholder="Player 1"
+						aria-label="Player 1 username"
+					/>
+					<input
+						type="text"
+						id="player2"
+						placeholder="Player 2"
+						aria-label="Player 2 username"
+					/>
+				</div>
+				<button id="battle-btn">BATTLE!</button>
+			</section>
+
+			<section id="results" class="results hidden">
+				<div class="player-panel">
+					<h3 id="p1-name">—</h3>
+					<dl>
+						<dt>Total Contributions</dt>
+						<dd id="p1-total">—</dd>
+						<dt>Period</dt>
+						<dd id="p1-range">—</dd>
+						<dt>Generated</dt>
+						<dd id="p1-generated">—</dd>
+					</dl>
+				</div>
+
+				<div class="player-panel">
+					<h3 id="p2-name">—</h3>
+					<dl>
+						<dt>Total Contributions</dt>
+						<dd id="p2-total">—</dd>
+						<dt>Period</dt>
+						<dd id="p2-range">—</dd>
+						<dt>Generated</dt>
+						<dd id="p2-generated">—</dd>
+					</dl>
+				</div>
+			</section>
+
+			<div id="error" class="error-message hidden"></div>
+		</main>
+
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			html {
+				background-color: #0a0e27;
+				color-scheme: dark;
+			}
+
+			body {
+				background-color: #0a0e27;
+				color: #fff;
+				font-family: 'Press Start 2P', monospace;
+				font-size: 0.75rem;
+				line-height: 1.5;
+				padding: 1rem;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+			}
+
+			header {
+				text-align: center;
+				margin-bottom: 2rem;
+				border-bottom: 2px solid #00ff00;
+				padding-bottom: 1rem;
+			}
+
+			h1 {
+				color: #00ff00;
+				font-size: 1.5rem;
+				margin-bottom: 0.5rem;
+				text-shadow: 0 0 10px #00ff00;
+			}
+
+			h2 {
+				color: #00ff00;
+				font-size: 0.9rem;
+				font-weight: normal;
+				letter-spacing: 0.05em;
+			}
+
+			main {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 2rem;
+				max-width: 900px;
+				margin: 0 auto;
+				width: 100%;
+			}
+
+			.battle-setup {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				align-items: center;
+			}
+
+			.input-group {
+				display: flex;
+				gap: 1rem;
+				flex-wrap: wrap;
+				justify-content: center;
+				width: 100%;
+			}
+
+			input {
+				background-color: #1a1f3a;
+				color: #00ff00;
+				border: 2px solid #00ff00;
+				padding: 0.5rem;
+				font-family: monospace;
+				font-size: 0.7rem;
+				min-width: 120px;
+				flex: 1;
+				min-width: 150px;
+			}
+
+			input::placeholder {
+				color: #00ff00;
+				opacity: 0.5;
+			}
+
+			input:focus {
+				outline: none;
+				box-shadow: 0 0 10px #00ff00, inset 0 0 5px rgba(0, 255, 0, 0.3);
+			}
+
+			button {
+				background-color: #00ff00;
+				color: #0a0e27;
+				border: 2px solid #00ff00;
+				padding: 0.75rem 2rem;
+				font-family: 'Press Start 2P', monospace;
+				font-size: 0.8rem;
+				font-weight: bold;
+				cursor: pointer;
+				text-transform: uppercase;
+				transition: all 0.2s;
+			}
+
+			button:hover {
+				box-shadow: 0 0 10px #00ff00;
+				transform: scale(1.05);
+			}
+
+			button:active {
+				transform: scale(0.98);
+			}
+
+			button:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+				transform: scale(1);
+			}
+
+			.results {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 2rem;
+				padding: 2rem;
+				border: 2px solid #00ff00;
+				background-color: rgba(0, 255, 0, 0.05);
+			}
+
+			.results.hidden {
+				display: none;
+			}
+
+			.player-panel {
+				border: 2px solid #00ff00;
+				padding: 1.5rem;
+				background-color: rgba(0, 255, 0, 0.02);
+			}
+
+			.player-panel h3 {
+				color: #00ff00;
+				font-size: 1rem;
+				margin-bottom: 1rem;
+				border-bottom: 1px solid #00ff00;
+				padding-bottom: 0.5rem;
+			}
+
+			dl {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 0.5rem 1rem;
+				font-size: 0.65rem;
+			}
+
+			dt {
+				color: #00ff00;
+				opacity: 0.7;
+				font-weight: bold;
+			}
+
+			dd {
+				color: #fff;
+				font-family: monospace;
+				word-break: break-all;
+			}
+
+			.error-message {
+				background-color: #ff0000;
+				color: #fff;
+				border: 2px solid #ff0000;
+				padding: 1rem;
+				text-align: center;
+				font-size: 0.75rem;
+			}
+
+			.error-message.hidden {
+				display: none;
+			}
+
+			@media (max-width: 600px) {
+				body {
+					font-size: 0.65rem;
+					padding: 0.5rem;
+				}
+
+				h1 {
+					font-size: 1.2rem;
+				}
+
+				h2 {
+					font-size: 0.75rem;
+				}
+
+				.input-group {
+					flex-direction: column;
+					width: 100%;
+				}
+
+				input,
+				button {
+					width: 100%;
+					font-size: 0.65rem;
+				}
+
+				.results {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+					padding: 1rem;
+				}
+
+				dl {
+					grid-template-columns: 1fr;
+					gap: 0.25rem;
+				}
+			}
+		</style>
+
+		<script>
+			const player1Input = document.getElementById('player1');
+			const player2Input = document.getElementById('player2');
+			const battleBtn = document.getElementById('battle-btn');
+			const resultsSection = document.getElementById('results');
+			const errorDiv = document.getElementById('error');
+
+			battleBtn.addEventListener('click', battle);
+
+			async function battle() {
+				const p1 = player1Input.value.trim();
+				const p2 = player2Input.value.trim();
+
+				// Clear previous results and errors
+				errorDiv.classList.add('hidden');
+				resultsSection.classList.add('hidden');
+
+				// Validate inputs
+				if (!p1 || !p2) {
+					showError('Please enter both player usernames');
+					return;
+				}
+
+				// Disable button during fetch
+				battleBtn.disabled = true;
+				battleBtn.textContent = 'BATTLING...';
+
+				try {
+					// Fetch both players' data in parallel
+					const [data1, data2] = await Promise.all([
+						fetchContributions(p1),
+						fetchContributions(p2),
+					]);
+
+					// Handle potential error responses
+					if (data1.error || data2.error) {
+						if (data1.error) {
+							showError(`Player 1 (${p1}): ${data1.error}`);
+						} else if (data2.error) {
+							showError(`Player 2 (${p2}): ${data2.error}`);
+						}
+						return;
+					}
+
+					displayResults(p1, data1, p2, data2);
+				} catch (err) {
+					showError(`Battle failed: ${err.message}`);
+				} finally {
+					battleBtn.disabled = false;
+					battleBtn.textContent = 'BATTLE!';
+				}
+			}
+
+			async function fetchContributions(username) {
+				const response = await fetch(
+					`/api/contributions/${encodeURIComponent(username)}`
+				);
+				const data = await response.json();
+
+				if (!response.ok) {
+					return data;
+				}
+
+				return data;
+			}
+
+			function displayResults(p1Name, data1, p2Name, data2) {
+				// Set player names
+				document.getElementById('p1-name').textContent = p1Name.toUpperCase();
+				document.getElementById('p2-name').textContent = p2Name.toUpperCase();
+
+				// Set player 1 data
+				document.getElementById('p1-total').textContent = formatNumber(
+					data1.total_contributions || 0
+				);
+				document.getElementById('p1-range').textContent =
+					`${data1.from} → ${data1.to}`;
+				document.getElementById('p1-generated').textContent =
+					data1.generated_at || '—';
+
+				// Set player 2 data
+				document.getElementById('p2-total').textContent = formatNumber(
+					data2.total_contributions || 0
+				);
+				document.getElementById('p2-range').textContent =
+					`${data2.from} → ${data2.to}`;
+				document.getElementById('p2-generated').textContent =
+					data2.generated_at || '—';
+
+				// Show results section
+				resultsSection.classList.remove('hidden');
+			}
+
+			function showError(message) {
+				errorDiv.textContent = message;
+				errorDiv.classList.remove('hidden');
+			}
+
+			function formatNumber(num) {
+				return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+			}
+		</script>
 	</body>
 </html>
